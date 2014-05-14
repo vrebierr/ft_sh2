@@ -42,7 +42,7 @@ static void		exec_verif(char **av, t_env *env)
 		execve(tmp, av, env->envp);
 }
 
-void	exec_dup(char **av, int pipe_fd[2], t_env *env, int	direction)
+void			exec_dup(char **av, int pipe_fd[2], t_env *env, int	direction)
 {
 	if (direction == 1)
 	{
@@ -67,7 +67,7 @@ static void		exec_pipe(char **av, t_env *env, char **pipes)
 	int		i;
 
 	if (pipe(pipe_fd) == -1)
-			return (show_error("pipex: fail"));
+		return (show_error("pipex: fail"));
 	i = 0;
 	while (pipes[i])
 	{
