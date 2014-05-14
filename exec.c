@@ -1,36 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vrebierr <vrebierr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2014/05/14 14:37:02 by vrebierr          #+#    #+#             */
-/*   Updated: 2014/05/14 14:37:04 by vrebierr         ###   ########.fr       */
+/*   Created: 2014/05/14 15:47:12 by vrebierr          #+#    #+#             */
+/*   Updated: 2014/05/14 15:47:13 by vrebierr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_sh2.h"
-#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-int		main(int ac, char **av, char **envp)
+void	exec(t_cmd *cmd)
 {
-	char	*line;
-	t_env	*env;
-	t_cmd	*cmd;
+	pid_t	parent;
 
-	(void)ac;
-	(void)av;
-	env = (t_env *)malloc(sizeof(t_env));
-	env->envp = envp;
-	env->paths = ft_strsplit(ft_strsplit(envp[0], '=')[1], ':');
-	ft_putstr("$> ");
-	while (get_next_line(0, &line))
-	{
-		cmd = init_cmd(line, env);
-		exec(cmd);
-		del_cmd(cmd);
-		ft_putstr("$> ");
-	}
+	parent = fork();
+	if (parent > 0)
+		wait(NULL);
+	else if (parent == 0)
+		execve(cmd->path, cmd->av, cmd->env->envp);
+}
+
+int		is_builtin(t_cmd *cmd)
+{
+	if (ft_strcmp(cmd->cmd, "exit") == 0)
+		builtin_exit();
 	return (0);
 }
