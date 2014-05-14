@@ -16,18 +16,6 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
-static void		exec(char *path, char **av, t_env *env)
-{
-	pid_t	pid;
-
-	if ((pid = fork()) < 0)
-		show_error("fork: fail");
-	else if (pid == 0)
-		execve(path, av, env->envp);
-	else
-		wait(NULL);
-}
-
 static void		exec_verif(char **av, t_env *env)
 {
 	int			i;
@@ -51,7 +39,71 @@ static void		exec_verif(char **av, t_env *env)
 		ft_putendl(": command not found");
 	}
 	else
-		exec(tmp, av, env);
+		execve(tmp, av, env->envp);
+}
+
+void	exec_dup(char **av, int pipe_fd[2], t_env *env, int	direction)
+{
+	if (direction == 1)
+	{
+		close(pipe_fd[0]);
+		dup2(pipe_fd[1], 1);
+		close(pipe_fd[1]);
+		exec_verif(av, env);
+	}
+	else
+	{
+		close(pipe_fd[1]);
+		dup2(pipe_fd[0], 0);
+		close(pipe_fd[0]);
+		exec_verif(av, env);
+	}
+}
+
+static void		exec_pipe(char **av, t_env *env, char **pipes)
+{
+	pid_t	pid;
+	int		pipe_fd[2];
+	int		i;
+
+	if (pipe(pipe_fd) == -1)
+			return (show_error("pipex: fail"));
+	i = 0;
+	while (pipes[i])
+	{
+		ft_putendl(pipes[i]);
+		if ((pid = fork()) < 0)
+			show_error("fork: fail");
+		else if (pid == 0)
+		{
+			if (pipes[i + 1])
+				exec_dup(av, pipe_fd, env, 0);
+			else
+				exec_dup(av, pipe_fd, env, 1);
+			exit(0);
+		}
+		else
+			i++;
+	}
+}
+
+static void		exec_fork(char *cmd, t_env *env)
+{
+	pid_t	pid;
+	char	**pipes;
+	int		i;
+
+	pipes = ft_strsplit(cmd, '|');
+	i = 0;
+	if ((pid = fork()) < 0)
+		show_error("fork: fail");
+	else if (pid == 0)
+	{
+		exec_pipe(ft_strsplit(pipes[i], ' '), env, pipes);
+		exit(0);
+	}
+	else
+		wait(NULL);
 }
 
 void			exec_cmd(char *line, t_env *env)
@@ -63,8 +115,7 @@ void			exec_cmd(char *line, t_env *env)
 	i = 0;
 	while (cmds[i])
 	{
-
-		exec_verif(ft_strsplit(cmds[i], ' '), env);
+		exec_fork(cmds[i], env);
 		i++;
 	}
 }
