@@ -20,18 +20,7 @@ typedef struct		s_env
 	char			**envp;
 }					t_env;
 
-typedef struct		s_cmd
-{
-	char			*path;
-	char			**av;
-	char			*cmd;
-	t_env			*env;
-	struct s_cmd	*next;
-}					t_cmd;
-
-t_cmd				*init_cmd(char *line, t_env *env);
-void				del_cmd(t_cmd *cmd);
-void				builtin_exit(void);
-void				exec(t_cmd *cmd);
+void				show_error(char *msg);
+void				exec_cmd(char *line, t_env *env);
 
 #endif

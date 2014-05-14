@@ -11,8 +11,8 @@
 # **************************************************************************** #
 
 NAME = ft_minishell2
-SRC = main.c builtins.c exec.c cmd.c ft_sh2.c
-OBJ = main.o builtins.o exec.o cmd.o ft_sh2.o
+SRC = main.c builtins.c exec.c ft_sh2.c
+OBJ = main.o builtins.o exec.o ft_sh2.o
 FLAGS = -Wall -Werror -Wextra
 LDIR = libft/
 LIB = $(LDIR)libft.a
