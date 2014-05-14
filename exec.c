@@ -66,24 +66,30 @@ static void		exec_pipe(char **av, t_env *env, char **pipes)
 	int		pipe_fd[2];
 	int		i;
 
-	if (pipe(pipe_fd) == -1)
-		return (show_error("pipex: fail"));
 	i = 0;
 	while (pipes[i])
 	{
 		ft_putendl(pipes[i]);
+		ft_putendl(pipes[i + 1]);
+		if (pipe(pipe_fd) == -1)
+			show_error("pipex: fail");
 		if ((pid = fork()) < 0)
 			show_error("fork: fail");
 		else if (pid == 0)
 		{
 			if (pipes[i + 1])
-				exec_dup(av, pipe_fd, env, 0);
-			else
 				exec_dup(av, pipe_fd, env, 1);
+			else
+				exec_dup(av, pipe_fd, env, 0);
 			exit(0);
 		}
 		else
-			i++;
+		{
+			if (pipes[i + 1])
+				exec_dup(av, pipe_fd, env, 0);
+			exit(0);
+		}
+		i += 2;
 	}
 }
 
